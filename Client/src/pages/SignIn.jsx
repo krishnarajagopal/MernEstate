@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { signInStart, signInSuccess, signInFailure } from "../redux/user/userSlice.js";
+import Oauth from "../components/Oauth.jsx";
 
 export default function SignIp() {
   const [formData, setFormData] = useState({});
@@ -62,6 +63,7 @@ export default function SignIp() {
           onChange={handleChange}>
           {loading ? "Loading..." : "Sign In"}
         </button>
+        <Oauth />
       </form>
       <div className='container flex justify-center gap-2 mt-5 text-slate-700 text-center'>
         <p>{`Don't have an account?`}</p>

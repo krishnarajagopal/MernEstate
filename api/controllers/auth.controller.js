@@ -27,7 +27,7 @@ export const signin = async (req, res, next) => {
       return next(errorHandler(400, "Invalid email or password"));
     }
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
-    const { password: hashedPassword, ...otherUserInfo } = user._doc;
+    const { password: pass, ...otherUserInfo } = user._doc;
     res
       .cookie("access_token", token, {
         httpOnly: true })
@@ -37,3 +37,40 @@ export const signin = async (req, res, next) => {
     next(error);
   }
 };
+
+export const googleLogin = async (req, res, next) => {
+  const { name, email, picture } = req.body;
+  const userName=name.split(" ").join("").toLowerCase()+`_${Math.round(Math.random()*10000)}`
+  try {
+    const user = await User.findOne({ email });
+    if (user) {
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+      const { password: pass, ...otherUserInfo } = user._doc;
+      res
+        .cookie("access_token", token, {
+          httpOnly: true
+        })
+        .status(200)
+        .json({ message: "Login Successful", otherUserInfo });
+    } else {
+      const password = email + process.env.JWT_SECRET;
+      const hashedPassword = bcrypt.hashSync(password, 10);
+      const newUser = new User({
+        username: userName,
+        email,
+        password: hashedPassword,
+        profilePic: picture
+      });
+      await newUser.save();
+      const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET);
+      const { password: pass, ...otherUserInfo } = newUser._doc;
+      res
+        .cookie("access_token", token, {
+          httpOnly: true
+        })
+        .status(200)
+        .json({ message: "Login Successful", otherUserInfo });
+} 
+} catch (error) {
+    next(error);
+}}
